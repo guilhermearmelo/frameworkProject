@@ -4,9 +4,12 @@ public class Main {
 
         FrameworkSystemAPI run = new FrameworkSystemAPI();
 
-        //run.create();
+        run.create();
+
         //run.read();
-        run.update();
+
+        //run.update();
+
         //run.delete();
 
     }

@@ -20,24 +20,45 @@ public class FrameworkSystemAPI {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         // Transação
-        entityManager.getTransaction().begin();
-        entityManager.persist(frameworker);
-        entityManager.getTransaction().commit();
-        entityManagerFactory.close();
+        try{
+            entityManager.getTransaction().begin();
+            entityManager.persist(frameworker);
+            entityManager.getTransaction().commit();
+            entityManagerFactory.close();
+        }catch(HibernateException hibernateEx){
+            try{
+                entityManager.getTransaction().rollback();
+            }catch(RuntimeException runtimeEx){
+                System.err.printf("Não foi possível realizar rollback da transação", runtimeEx);
+            }
+            hibernateEx.printStackTrace();
+        }finally {
+            if(entityManager!= null) {
+                entityManager.close();
+            }
+        }
+
     }
 
-    public void read(){
+    public Funcionario read(){
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistenceUnitName");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         int id = 1;
         //String nome = "Guilherme";
+        Funcionario frameworker = new Funcionario();
 
-        Funcionario frameworker = entityManager.find(Funcionario.class, id);
+        try{
+            frameworker = entityManager.find(Funcionario.class, id);
 
-        System.out.println(frameworker.getId() + " " + frameworker.getName() + " " + frameworker.getSalario());
+            System.out.println(frameworker.getId() + " " + frameworker.getName() + " " + frameworker.getSalario());
+        }catch(HibernateException hibernateEx){
+            hibernateEx.printStackTrace();
+        }
 
         // frameworker pode ser manipulado a partir de um retorno do metodo read()
+
+        return frameworker;
     }
 
     public void update(){
@@ -48,14 +69,18 @@ public class FrameworkSystemAPI {
 
         Funcionario frameworker = new Funcionario();
 
-        frameworker.setId(1);
+        frameworker.setId(2);
 
-        frameworker = entityManager.find(Funcionario.class, frameworker.getId());
-        frameworker.setName("José da Silva");
+        try{
+            frameworker = entityManager.find(Funcionario.class, frameworker.getId());
+            frameworker.setName("Guilherme Melo");
 
-        entityManager.getTransaction().commit();
-        entityManager.close();
-        entityManagerFactory.close();
+            entityManager.getTransaction().commit();
+            entityManager.close();
+            entityManagerFactory.close();
+        }catch(HibernateException hibernateEx){
+            hibernateEx.printStackTrace();
+        }
 
     }
 
@@ -63,13 +88,17 @@ public class FrameworkSystemAPI {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistenceUnitName");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-        int id = 1;
+        int id = 2;
 
-        Funcionario frameworker = entityManager.find(Funcionario.class, id);
-        entityManager.getTransaction().begin();
-        entityManager.remove(frameworker);
-        entityManager.getTransaction().commit();
-        entityManagerFactory.close();
+        try {
+            Funcionario frameworker = entityManager.find(Funcionario.class, id);
+            entityManager.getTransaction().begin();
+            entityManager.remove(frameworker);
+            entityManager.getTransaction().commit();
+            entityManagerFactory.close();
+        }catch(HibernateException hibernateEx){
+            hibernateEx.printStackTrace();
+        }
     }
 
 }
